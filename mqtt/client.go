@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"git.eclipse.org/gitroot/paho/org.eclipse.paho.mqtt.golang.git"
 	"net/url"
-	"os"
 )
 
 // tcp://user:password@host:port
