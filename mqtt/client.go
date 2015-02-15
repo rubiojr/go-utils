@@ -41,6 +41,7 @@ func PushMsg(clientId, brokerUrl, topic, msg string) error {
 	}
 
 	<-client.Publish(0, topic, msg)
+	client.Disconnect(0)
 
 	return nil
 }
