@@ -9,16 +9,24 @@ import (
 )
 
 // tcp://user:password@host:port
-func pushMsg(clientId, brokerUrl, topic, msg string) (bool, error) {
+func PushMsg(clientId, brokerUrl, topic, msg string) error {
+
+	if brokerUrl == "" {
+		panic("Invalid broker URL")
+	}
 
 	uri, _ := url.Parse(brokerUrl)
+	if uri.Scheme != "tcp" {
+		panic("Invalid broker URL scheme")
+	}
+
 	opts := mqtt.NewClientOptions()
 
 	opts.AddBroker(fmt.Sprintf("tcp://%s", uri.Host))
 
-	user := uri.User.Username()
-	if user != "" {
-		opts.SetUsername(uri.User.Username())
+	if uri.User != nil {
+		user := uri.User.Username()
+		opts.SetUsername(user)
 		password, _ := uri.User.Password()
 		if password != "" {
 			opts.SetPassword(password)
@@ -30,14 +38,10 @@ func pushMsg(clientId, brokerUrl, topic, msg string) (bool, error) {
 	client := mqtt.NewClient(opts)
 	_, err := client.Start()
 	if err != nil {
-		return false, errors.New("Error starting the MQTT Client: " + err.Error())
+		return errors.New("Error starting the MQTT Client: " + err.Error())
 	}
 
 	<-client.Publish(0, topic, msg)
 
-	return true, nil
-}
-
-func main() {
-	pushMsg("pushmtr", os.Getenv("MQTT_URL"), "topic", "message")
+	return nil
 }
